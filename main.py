@@ -53,21 +53,12 @@ def dispatch_media_transform(uid: str = None):
         return trans_uid
 
 
-def dispatch_media_download(trans_uid):
+def dispatch_media_download(trans_uid) -> BytesIO:
     remote_file_url = (
         download_url + "?trans_id=" + trans_uid + "&api_token=" + api_token
     )
-    response = requests.get(remote_file_url, stream=True)
-
-    dst_path = "path/to/file.jpg"
-
-    response = requests.get(remote_file_url, stream=True)
-
-    f = open(dst_path, "wb")
-    for chunk in response.iter_content(chunk_size=512):
-        if chunk:
-            f.write(chunk)
-    f.close()
+    response = requests.get(remote_file_url)
+    return BytesIO(response.content)
 
 
 @app.on_message(filters.command("start") & filters.private)
@@ -84,16 +75,16 @@ def photo_handler(client: Client, message: Message):
 def enhance_photo(client: Client, message: Message):
     message.reply_text("I'm enhancing your photo...")
     process_media(message)
-    message.reply_photo(open("/Users/yasna/Downloads/demo.jpg", "rb"))
 
 
-def process_media(message):
+def process_media(message: Message):
     try:
         if message.media:
             file_data = app.download_media(message, "", True)
             upload_uid = dispatch_media_upload(file_data)
             trans_uid = dispatch_media_transform(upload_uid)
-            dispatch_media_download(trans_uid)
+            image = dispatch_media_download(trans_uid)
+            message.reply_photo(image)
         else:
             print("The message does not contain any media.")
 
