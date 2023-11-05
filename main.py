@@ -4,18 +4,22 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import requests
 import json
-from PIL import Image
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-api_token = os.getenv("API_TOKEN")
+api_token = os.getenv("VANCE_API_TOKEN")
 upload_url = os.getenv("VANCE_API_UPLOAD_URL")
 transform_url = os.getenv("VANCE_API_TRANSFORM_URL")
 download_url = os.getenv("VANCE_API_DOWNLOAD_URL")
 
 
-app = Client("Mieux")
+app = Client(
+    "Mieux",
+    api_id=os.getenv("TELEGRAM_API_ID"),
+    api_hash=os.getenv("TELEGRAM_API_HASH"),
+    bot_token= os.getenv("TELEGRAM_BOT_TOKEN")
+    )
 
 
 def dispatch_media_upload(file: BytesIO = None):
