@@ -131,6 +131,7 @@ venv.bak/
 .vscode
 .idea
 *.session
+*.session-journal
 
 # Spyder project settings
 .spyderproject
