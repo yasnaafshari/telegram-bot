@@ -1,0 +1,26 @@
+{
+    "job": "enlarge",
+    "config": {
+        "module": "enlarge",
+        "module_params": {
+            "model_name": "EnlargeStable",
+            "suppress_noise": 26,
+            "remove_blur": 26,
+            "scale": "2x"
+        },
+        "out_params": {
+          "compress": {
+            "quality": 95
+          },
+          "dpi": 300,
+          "format": "png",
+          "bg_composed": {
+            "bg_color": {
+              "r": 0,
+              "g": 255,
+              "b": 255
+            }
+          }
+        }
+    }
+}
