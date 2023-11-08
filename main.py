@@ -6,20 +6,20 @@ import requests
 import json
 from dotenv import load_dotenv
 import os
+import logging
 
 load_dotenv()
-api_token = os.getenv("VANCE_API_TOKEN")
+api_token = os.getenv("API_TOKEN")
 upload_url = os.getenv("VANCE_API_UPLOAD_URL")
 transform_url = os.getenv("VANCE_API_TRANSFORM_URL")
 download_url = os.getenv("VANCE_API_DOWNLOAD_URL")
+progress_url = os.getenv("VANCE_API_PROGRESS_URL")
+bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+api_id = os.getenv("TELEGRAM_API_ID")
+api_hash = os.getenv("TELEGRAM_API_HASH")
 
 
-app = Client(
-    "Mieux",
-    api_id=os.getenv("TELEGRAM_API_ID"),
-    api_hash=os.getenv("TELEGRAM_API_HASH"),
-    bot_token= os.getenv("TELEGRAM_BOT_TOKEN")
-    )
+app = Client("Mieux", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 
 def dispatch_media_upload(file: BytesIO = None):
@@ -68,28 +68,31 @@ def start(client: Client, message: Message):
 
 @app.on_message(filters.command("enhance") & filters.private)
 def photo_handler(client: Client, message: Message):
-    app.send_message(message.chat.id, "Send me a photo to enhance it with AI")
+    app.send_message(
+        message.chat.id, "Send me a photo to enhance its quality with AI"
+    )
 
 
 @app.on_message(filters.photo)
 def enhance_photo(client: Client, message: Message):
-    message.reply_text("I'm enhancing your photo...")
-    process_media(message)
+    if message.photo:
+        message.reply_text("I'm enhancing your photo...")
+        process_media(message)
+    else:
+        message.reply_text("The message does not contain any photo.")
 
 
 def process_media(message: Message):
     try:
-        if message.media:
-            file_data = app.download_media(message, "", True)
-            upload_uid = dispatch_media_upload(file_data)
-            trans_uid = dispatch_media_transform(upload_uid)
-            image = dispatch_media_download(trans_uid)
-            message.reply_photo(image)
-        else:
-            print("The message does not contain any media.")
-
+        file_data = app.download_media(message, "", True)
+        upload_uid = dispatch_media_upload(file_data)
+        trans_uid = dispatch_media_transform(upload_uid)
+        media = dispatch_media_download(trans_uid)
+        message.reply_photo(media)
+        message.reply_text("Done, I hope you like it!")
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error occurred: {e}")
+        message.reply_text("Something went wrong while processing your photo.")
 
 
 app.run()
